@@ -11,7 +11,7 @@ from sklearn.metrics import confusion_matrix
 
 
 # This function plots a confusion matrix
-def plot_confusion_matrix(cm, classes,
+def plot_confusion_matrix (cm, classes,
                           normalize=False,
                           title='Confusion matrix',
                           cmap=plt.cm.Blues):
@@ -102,7 +102,6 @@ Yguess = classifier.predict(Xtest)
 # The accuracy is calculated by a comparison of the actual labels and the guessed labels
 print(accuracy_score(Ytest, Yguess))
 
-
 # Calculate precision micro and macro
 from sklearn.metrics import precision_score
 precision_macro = precision_score(Ytest, Yguess, average='macro') 
@@ -143,7 +142,7 @@ plot_confusion_matrix(cnf_matrix, classes=set(Ytest),
 plt.show()
 
 
-#cross validation
+# cross validation
 from sklearn.model_selection import KFold
 kf = KFold(n_splits=5)
 kf.get_n_splits(X)
@@ -160,13 +159,23 @@ for train_index, test_index in kf.split(X):
   X_train, X_test = X[train_index], X[test_index]
   y_train, y_test = Y[train_index], Y[test_index]
 
+  # train the classifier on X
+  classifier.fit(X_train, y_train)
+
+  # The classfier predicts the Ygeuss based on the Xtest after training
+  y_guess = classifier.predict(X_test)
+
   # Compute confusion matrix
-  cnf_matrix = confusion_matrix(Ytest, Yguess)
+  cnf_matrix = confusion_matrix(y_test, y_guess)
   np.set_printoptions(precision=2)
 
   plt.subplot(320+fold)
   # Plot non-normalized confusion matrix
-  plot_confusion_matrix(cnf_matrix, classes=set(Ytest),
-                      title='Confusion matrix, without normalization')
+  plt.imshow(float(plot_confusion_matrix(cnf_matrix, classes=set(Ytest),
+                      title='Confusion matrix leaving out fold '+str(fold))), cmap=plt.cm.BuPu_r)
   fold = fold + 1
+
+plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+cax = plt.axes([0.85, 0.1, 0.075, 0.8])
+plt.colorbar(cax=cax)
 plt.show()
