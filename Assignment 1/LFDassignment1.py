@@ -9,6 +9,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 
+
 # This function plots a confusion matrix 
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
@@ -29,7 +30,7 @@ def plot_confusion_matrix(cm, classes,
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     plt.colorbar()
-    tick_marks = np.arange(len(classes))
+    tick_marks = np.arange(len(classes))  
     plt.xticks(tick_marks, classes, rotation=45)
     plt.yticks(tick_marks, classes)
 
@@ -53,6 +54,8 @@ def plot_confusion_matrix_without_colorbar (cm, classes,
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
+    classes = ['1', '2', '3', '4', '5', '6']
+
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
         print("Normalized confusion matrix")
@@ -60,12 +63,11 @@ def plot_confusion_matrix_without_colorbar (cm, classes,
         print('Confusion matrix, without normalization')
 
     print(cm)
-
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     #plt.colorbar()
     tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
+    plt.xticks(tick_marks, classes)
     plt.yticks(tick_marks, classes)
 
     fmt = '.2f' if normalize else 'd'
@@ -75,7 +77,7 @@ def plot_confusion_matrix_without_colorbar (cm, classes,
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
 
-    plt.tight_layout()
+    #plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
@@ -103,8 +105,14 @@ def identity(x):
 
 # Reading the dataset with X containing the review's text and Y as labels which could be sentiment (use_sentiment = True) or topics (use_sentiment = False)
 # Then the dataset is split in a train (75%) and test (25%) set  
-X, Y = read_corpus('trainset.txt', use_sentiment=True)
-split_point = int(0.75*len(X))
+X, Y = read_corpus('trainset.txt', use_sentiment=False)
+
+#prints the frequency count of the labels
+d = {x:Y.count(x) for x in Y}
+print(d)
+
+split_point = int(0.9*len(X))
+#split_point = int(0.75*len(X))
 Xtrain = X[:split_point]
 Ytrain = Y[:split_point]
 Xtest = X[split_point:]
@@ -133,19 +141,35 @@ classifier.fit(Xtrain, Ytrain)
 # The classfier predicts the Ygeuss based on the Xtest after training
 Yguess = classifier.predict(Xtest)
 
+
+#shows the precision, recall and f-score per class
+from sklearn.metrics import classification_report
+#target_names = ['class 1', 'class 2']
+target_names = ['class 1', 'class 2', 'class 3', 'class 4', 'class 5', 'class 6']
+print(classification_report(Ytest, Yguess, target_names=target_names))
+ 
 # The accuracy is calculated by a comparison of the actual labels and the guessed labels
+print("accuracy")
 print(accuracy_score(Ytest, Yguess))
+
+#The accuracy score per class can be obtained by the normalized confusion matrix. Diagonal values are accuracy per class
+cnf_matrix = confusion_matrix(Ytest, Yguess)
+np.set_printoptions(precision=2)
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=set(Ytest), normalize=True,
+                      title='Normalized confusion matrix')  
 
 # Calculate precision micro and macro
 from sklearn.metrics import precision_score
+print("precision")
 precision_macro = precision_score(Ytest, Yguess, average='macro') 
 print(precision_macro)
-
 precision_micro = precision_score(Ytest, Yguess, average='micro') 
 print(precision_micro)
 
 # Calculate recall micro and macro
 from sklearn.metrics import recall_score
+print("recall")
 recall_macro = recall_score(Ytest, Yguess, average='macro')
 print(recall_macro)
 recall_micro = recall_score(Ytest, Yguess, average='micro')
@@ -153,6 +177,7 @@ print(recall_micro)
 
 # Calculate f1_score micro and macro
 from sklearn.metrics import f1_score
+print("f-score")
 f_score_macro = f1_score(Ytest, Yguess, average='macro')  
 print(f_score_macro)
 f_score_micro = f1_score(Ytest, Yguess, average='micro')  
@@ -168,11 +193,6 @@ plt.figure()
 plot_confusion_matrix(cnf_matrix, classes=set(Ytest),
                       title='Confusion matrix, without normalization')
 
-# Plot normalized confusion matrix
-#plt.figure()
-#plot_confusion_matrix(cnf_matrix, classes=set(Ytest), normalize=True,
-#                      title='Normalized confusion matrix')
-
 plt.show()
 
 
@@ -187,7 +207,10 @@ Y = np.array(Y)
 
 plt.figure()
 
+total_count = np.zeros((6,6), dtype=int)
+y_pred = []
 fold = 1
+
 for train_index, test_index in kf.split(X):
   print("TRAIN:", train_index, "TEST:", test_index)
   X_train, X_test = X[train_index], X[test_index]
@@ -198,7 +221,7 @@ for train_index, test_index in kf.split(X):
 
   # The classfier predicts the Ygeuss based on the Xtest after training
   y_guess = classifier.predict(X_test)
-
+  y_pred.extend(y_guess)
   # Compute confusion matrix
   cnf_matrix = confusion_matrix(y_test, y_guess)
   np.set_printoptions(precision=2)
@@ -206,10 +229,32 @@ for train_index, test_index in kf.split(X):
   plt.subplot(3,2,fold)
   # Plot non-normalized confusion matrix
   plot_confusion_matrix_without_colorbar(cnf_matrix, classes=set(Ytest),
-                      title='fold'+str(fold))
+                      title='')
   fold = fold + 1
+  total_count = total_count + cnf_matrix
 
+plt.subplot(3,2,fold)
+plot_confusion_matrix_without_colorbar(total_count, classes=set(Ytest),
+                      title='')
 plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+#plt.tight_layout()
 cax = plt.axes([0.85, 0.1, 0.075, 0.8])
 plt.colorbar(cax=cax)
 plt.show()
+
+print(classification_report(Y, y_pred))
+np.set_printoptions(precision=2)
+plt.figure()
+plot_confusion_matrix(total_count, classes=set(Ytest), normalize=True,
+                      title='Normalized total confusion matrix')  
+plt.show()
+
+#Probabilities
+
+
+# The classifier is traassigned to them (why are posteriors different from priors?).ined on the Xtrain and Ytrain dataset
+classifier.fit(Xtrain, Ytrain)
+
+# prints probabillities 
+print("Probabilities")
+print(classifier.predict_proba(Xtest))
