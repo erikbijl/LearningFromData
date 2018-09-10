@@ -45,7 +45,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
-# This function plots a confusion matrix without a colorbar to not have a colorbar at each subplot
+# This function plots a confusion matrix without a colorbar to not have a colorbar at each subplot when printing cross validation
 def plot_confusion_matrix_without_colorbar (cm, classes,
                           normalize=False,
                           title='Confusion matrix',
@@ -108,11 +108,12 @@ def identity(x):
 X, Y = read_corpus('trainset.txt', use_sentiment=False)
 
 #prints the frequency count of the labels
+print("The term frequencies are")
 d = {x:Y.count(x) for x in Y}
 print(d)
 
-split_point = int(0.9*len(X))
-#split_point = int(0.75*len(X))
+#split_point = int(0.9*len(X))
+split_point = int(0.75*len(X))
 Xtrain = X[:split_point]
 Ytrain = Y[:split_point]
 Xtest = X[split_point:]
@@ -249,12 +250,8 @@ plot_confusion_matrix(total_count, classes=set(Ytest), normalize=True,
                       title='Normalized total confusion matrix')  
 plt.show()
 
-#Probabilities
 
-
-# The classifier is traassigned to them (why are posteriors different from priors?).ined on the Xtrain and Ytrain dataset
+# The code below shows the probabilities for the test examples belonging to a class 
 classifier.fit(Xtrain, Ytrain)
-
-# prints probabillities 
 print("Probabilities")
 print(classifier.predict_proba(Xtest))
