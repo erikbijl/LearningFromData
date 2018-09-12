@@ -1,0 +1,16 @@
+Text to file in document: 
+
+1. Image is stored
+2. Unfortunately the tree is not a perfect fit for the data and does not have a perfect classification. Some examples are wrongly classified, however only 3 out of 16 are wrongly classified. These are the examples with: 
+[yellow, small, round, no], [yellow, large, round, yes], [yellow, large, round, yes]. The reason for this is that the feature values appear more often with a different label. Consider the 2 wrongly labeled instance of [yellow, large, round, yes], there are 3 instances of [yellow, large, round, no] therefore these feature values are classified as not edible but with some wrongly classsified instances. 
+3. Pruning is simply removing certain parts of the tree. A part of the tree that does not provide much additional information can be removed. This reduces the complexity and size of a decision tree. Also pruning improves generalisation which prevents overfitting to the data. A common way is to create the largest possible tree such that each leaf contains only a few instances. Then start pruning the parts that not provide much additional information. 
+4. Parameters which one can change in SciKit DecisionTree are: 
+
+	-max_depth: The maximum depth of a Tree. If you don't specify this the tree will be split until the leaves are pure or contain to less instances. So specifying this will result in a tree with less leaves.  
+	-min_samples_split: The minimal number of instances to split. If a node contains less instances than this amount it will be a leaf. Specifying this will reduce the width of a tree. 
+	-min_samples_leaf: The minimal number of instances in a leaf node. If a leaf contains less instances than this number it will be pruned to the node above. 
+	-max_leaf_nodes: The number of maximum leaf nodes. The tree will not grow further than this amount of leaves. 
+	-min_impurity_decrease: The number of the decrease in impurity (also called information gain). A split of nodes has to meet this value of impurity decrease. If this value is high than only splits with high impurity decrease are accepted. 
+	-min_impurity_split: A threshold of early stopping of growing the tree. A node  will stop splitting when this amount of impurity is met.  
+
+5. Like said above resuls will change by setting these parameters. For example setting max-depth will control the depth of the the tree, accordingly it also limits the amount of features which can be considered to this value. Also min-samples_split and min_samples_leaf will control the width of the tree. Only nodes with many instances are considered now. The max_leaf_nodes will stop the tree from growing when an amount of leaves is met. Still trees with max_leaf_nodes can be very deep but there shouldn't be too many edge cases. The min_impurity_decrease and min_impurity_split control the information gain a split provides. If these values are high than a tree will earlier stop with growing. 
