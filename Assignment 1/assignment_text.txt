@@ -1,4 +1,3 @@
-Text to file in document: 
 
 1. Image is stored
 2. Unfortunately the tree is not a perfect fit for the data and does not have a perfect classification. Some examples are wrongly classified, however only 3 out of 16 are wrongly classified. These are the examples with: 
@@ -14,3 +13,23 @@ Text to file in document:
 	-min_impurity_split: A threshold of early stopping of growing the tree. A node  will stop splitting when this amount of impurity is met.  
 
 5. Like said above resuls will change by setting these parameters. For example setting max-depth will control the depth of the the tree, accordingly it also limits the amount of features which can be considered to this value. Also min-samples_split and min_samples_leaf will control the width of the tree. Only nodes with many instances are considered now. The max_leaf_nodes will stop the tree from growing when an amount of leaves is met. Still trees with max_leaf_nodes can be very deep but there shouldn't be too many edge cases. The min_impurity_decrease and min_impurity_split control the information gain a split provides. If these values are high than a tree will earlier stop with growing. 
+
+
+
+1. The accuracy score is better for a large value of K. In this case more neighbours are taken into account which produces a better score. However if you incoorperate all neighbours than the example is simply assigned to the one with the highest occurence. Therefore you should always include a relatively small amount of K-nn. Also when including more and more neighbours the change of accuracy becomes smaller and smaller. So it is advised to set a threshold for the accuracy gain and if this is not met stop adding K's. 
+
+2. As said above the increase in performance (f-score and accuracy) becomes smaller and smaller when adding more K's. Initially this is high but this reduces when K becomes higher. 
+
+3. For a small number of K the Bias is low and variance is high. The bias is low because the distance between the neighbours is small. Also this model is likely to overfit the training data because the data is tightly fit. When increasing the amount of K the bias becomes larger because the distances between the test example and nearest neighbours are larger. 
+
+
+
+1. I timed the following seconds when training each classifier on the entire database: 
+	- Naive Bayes:  0.8939650058746338
+	- Decision Tree:  5.344148635864258
+	- KNN:  0.8485581874847412
+
+The timings are explainable by the complexities of each algorithm. For a decision tree a model has to be created. In this model at each node all possible splits must been calculated where the one with the highest information gain must be selected. For KNN and Naive Bayes this is different, the data is already your model so a model doesn't have to be trained in advance. However this will take more time during the test phase which can be seen at the testing all three models during their test phase on Xtest(25%): 
+	- Naive Bayes:  0.20381879806518555
+	- Decision Tree: 0.20859718322753906
+	- KNN: 1.3407809734344482 
